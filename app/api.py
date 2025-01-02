@@ -1,13 +1,16 @@
+from typing import List
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 from app import crud, models, schemas
 from app.database import SessionLocal, engine
 
+# Create the database tables
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Dependency
+# Dependency to get the database session
 def get_db():
     db = SessionLocal()
     try:
@@ -26,7 +29,13 @@ def read_item(item_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Item not found")
     return db_item
 
-@app.get("/items/", response_model=list[schemas.Item])
+@app.get("/items/", response_model=List[schemas.Item])
 def read_items(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     items = crud.get_items(db, skip=skip, limit=limit)
     return items
+
+@app.get("/search/")
+def full_text_search(query: str, db: Session = Depends(get_db)):
+    stmt = text("SELECT * FROM athlete WHERE data::jsonb @> :query::jsonb")
+    result = db.execute(stmt, {"query": query}).fetchall()
+    return result
