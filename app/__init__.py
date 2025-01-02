@@ -1,18 +1,21 @@
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 
-# Update this with your actual credentials
-DATABASE_URL = "postgresql://ellasloyan:asloyanelasloyan@localhost/dbproject"
+SUPERUSER_DATABASE_URL = "postgresql://postgres:superuser_password@localhost/postgres"
+USER_DATABASE_URL = "postgresql://ellasloyan:asloyanelasloyan@localhost/dbproject"
 
-engine = create_engine(DATABASE_URL)
+superuser_engine = create_engine(SUPERUSER_DATABASE_URL)
 
-# Check if the database exists; if not, create it
-if not database_exists(engine.url):
-    create_database(engine.url)
-    print(f"Database {engine.url.database} created.")
+if not database_exists(superuser_engine.url):
+    create_database(superuser_engine.url)
+    print(f"Database {superuser_engine.url.database} created.")
 
-# Set the owner of the database (assuming you have the necessary permissions)
-with engine.connect() as conn:
+with superuser_engine.connect() as conn:
     conn.execute("ALTER DATABASE dbproject OWNER TO ellasloyan")
+    print("Database owner set to ellasloyan.")
+
+# Create engine using regular user credentials
+user_engine = create_engine(USER_DATABASE_URL)
 
 print("Database initialized and owner set.")
+

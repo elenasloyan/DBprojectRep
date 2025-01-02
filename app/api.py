@@ -36,6 +36,6 @@ def read_items(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 
 @app.get("/search/")
 def full_text_search(query: str, db: Session = Depends(get_db)):
-    stmt = text("SELECT * FROM athlete WHERE data::jsonb @> :query::jsonb")
+    stmt = text("SELECT * FROM athlete WHERE data @> :query")
     result = db.execute(stmt, {"query": query}).fetchall()
     return result
