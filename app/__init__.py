@@ -10,6 +10,7 @@ if not database_exists(superuser_engine.url):
     create_database(superuser_engine.url)
     print(f"Database {superuser_engine.url.database} created.")
 
+
 with superuser_engine.connect() as conn:
     conn.execute("ALTER DATABASE dbproject OWNER TO ellasloyan")
     print("Database owner set to ellasloyan.")
